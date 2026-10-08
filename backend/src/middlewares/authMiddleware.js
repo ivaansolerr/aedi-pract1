@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET } = require('../config/env');
-const { findUserById } = require('../data/store');
+const { findUserById } = require('../models/userModel');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
 
@@ -13,7 +13,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = findUserById(decoded.id);
+    const user = await findUserById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ message: 'Token inválido o expirado.' });
@@ -21,7 +21,8 @@ const authMiddleware = (req, res, next) => {
 
     req.user = {
       id: user.id,
-      name: user.name,
+      name: user.username,
+      username: user.username,
       email: user.email
     };
 

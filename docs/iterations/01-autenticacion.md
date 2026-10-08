@@ -102,4 +102,4 @@ Se rechazó añadir persistencia real en base de datos o recuperación de contra
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el desarrollo de la iteración.
+- "f21b217da30b62bc844517e013c3eeb42a8a8186" 

@@ -1,6 +1,10 @@
 const crypto = require('node:crypto');
-
-const { addWork, findWorkById, getAllWorks, sanitizeWork } = require('../data/store');
+const {
+  createWork: insertWork,
+  findAllWorks,
+  findWorkById,
+  sanitizeWork
+} = require('../models/workModel');
 
 const validateWorkInput = (data) => {
   const { title, type, genre, release_year, duration, synopsis } = data || {};
@@ -39,29 +43,29 @@ const validateWorkInput = (data) => {
   };
 };
 
-const createWork = (payload) => {
+const createWork = async (payload) => {
   const parsed = validateWorkInput(payload);
 
-  const work = {
+  const work = await insertWork({
     id: crypto.randomUUID(),
-    ...parsed,
-    created_at: new Date().toISOString()
-  };
-
-  addWork(work);
+    ...parsed
+  });
 
   return sanitizeWork(work);
 };
 
-const listWorks = () => {
-  return getAllWorks().map(sanitizeWork);
+const listWorks = async () => {
+  const works = await findAllWorks();
+  return works.map(sanitizeWork);
 };
 
-const getWorkById = (id) => {
-  const work = findWorkById(id);
+const getWorkById = async (id) => {
+  const work = await findWorkById(id);
 
   if (!work) {
-    throw new Error('La obra no existe.');
+    const error = new Error('La obra no existe.');
+    error.statusCode = 404;
+    throw error;
   }
 
   return sanitizeWork(work);

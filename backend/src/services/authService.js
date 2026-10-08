@@ -3,14 +3,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET } = require('../config/env');
-const { addUser, findUserByEmail, findUserById, sanitizeUser } = require('../data/store');
+const {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  sanitizeUser
+} = require('../models/userModel');
 
-function registerUser({ name, email, password }) {
-  if (!name || !email || !password) {
+async function registerUser(payload) {
+  const { name, username, email, password } = payload || {};
+  const displayName = name || username;
+
+  if (!displayName || !email || !password) {
     throw new Error('Todos los campos son obligatorios.');
   }
 
-  const normalizedName = String(name).trim();
+  const normalizedName = String(displayName).trim();
   const normalizedEmail = String(email).trim().toLowerCase();
 
   if (normalizedName.length < 2) {
@@ -25,33 +33,37 @@ function registerUser({ name, email, password }) {
     throw new Error('La contraseña debe tener al menos 8 caracteres.');
   }
 
-  if (findUserByEmail(normalizedEmail)) {
-    throw new Error('Ya existe un usuario con ese email.');
+  const existing = await findUserByEmail(normalizedEmail);
+  if (existing) {
+    const error = new Error('Ya existe un usuario con ese email.');
+    error.statusCode = 409;
+    throw error;
   }
 
-  const user = {
+  const passwordHash = bcrypt.hashSync(password, 10);
+
+  const newUser = await createUser({
     id: crypto.randomUUID(),
-    name: normalizedName,
+    username: normalizedName,
     email: normalizedEmail,
-    password_hash: bcrypt.hashSync(password, 10),
-    created_at: new Date().toISOString()
-  };
+    password_hash: passwordHash
+  });
 
-  addUser(user);
-
-  return sanitizeUser(user);
+  return sanitizeUser(newUser);
 }
 
-function loginUser({ email, password }) {
+async function loginUser({ email, password }) {
   if (!email || !password) {
     throw new Error('Email y contraseña son obligatorios.');
   }
 
   const normalizedEmail = String(email).trim().toLowerCase();
-  const user = findUserByEmail(normalizedEmail);
+  const user = await findUserByEmail(normalizedEmail);
 
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
-    throw new Error('Credenciales incorrectas.');
+    const error = new Error('Credenciales incorrectas.');
+    error.statusCode = 401;
+    throw error;
   }
 
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
@@ -64,11 +76,13 @@ function loginUser({ email, password }) {
   };
 }
 
-function getProfile(userId) {
-  const user = findUserById(userId);
+async function getProfile(userId) {
+  const user = await findUserById(userId);
 
   if (!user) {
-    throw new Error('Usuario no encontrado.');
+    const error = new Error('Usuario no encontrado.');
+    error.statusCode = 404;
+    throw error;
   }
 
   return sanitizeUser(user);

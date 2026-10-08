@@ -3,11 +3,10 @@ const assert = require('node:assert/strict');
 const request = require('supertest');
 
 const app = require('../src/app');
-const { resetUsers, resetWorks } = require('../src/data/store');
+const { cleanDb } = require('../src/config/db');
 
-test.beforeEach(() => {
-  resetUsers();
-  resetWorks();
+test.beforeEach(async () => {
+  await cleanDb();
 });
 
 test('POST /api/works crea una obra con datos válidos', async () => {

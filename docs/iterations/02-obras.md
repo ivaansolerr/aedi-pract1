@@ -111,4 +111,4 @@ Se rechazó incluir edición, borrado y filtros avanzados porque no forman parte
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el desarrollo de la iteración.
+- "855e612701dbe219283902e420a3cd9c42779d85"

@@ -1,22 +1,22 @@
 const { registerUser, loginUser, getProfile } = require('../services/authService');
 
-function register(req, res) {
+async function register(req, res) {
   try {
-    const user = registerUser(req.body);
+    const user = await registerUser(req.body);
     return res.status(201).json({
       message: 'Usuario registrado correctamente.',
       user
     });
   } catch (error) {
     const message = error.message || 'Error al registrar usuario.';
-    const status = message.toLowerCase().includes('ya existe') ? 409 : 400;
+    const status = error.statusCode || (message.toLowerCase().includes('ya existe') ? 409 : 400);
     return res.status(status).json({ message });
   }
 }
 
-function login(req, res) {
+async function login(req, res) {
   try {
-    const payload = loginUser(req.body);
+    const payload = await loginUser(req.body);
     return res.status(200).json(payload);
   } catch (error) {
     return res.status(401).json({
@@ -25,9 +25,9 @@ function login(req, res) {
   }
 }
 
-function me(req, res) {
+async function me(req, res) {
   try {
-    const user = getProfile(req.user.id);
+    const user = await getProfile(req.user.id);
     return res.status(200).json({ user });
   } catch (error) {
     return res.status(404).json({
