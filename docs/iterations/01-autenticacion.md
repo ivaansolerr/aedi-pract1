@@ -6,7 +6,7 @@
 
 Implementar la autenticación básica de usuarios para permitir registrar cuentas y acceder a la API con un token JWT.
 
-### Requisitos funcionales
+### Requisitos
 
 - Un usuario puede registrarse con nombre, email y contraseña.
 - El email debe ser único en la aplicación.
@@ -15,14 +15,6 @@ Implementar la autenticación básica de usuarios para permitir registrar cuenta
 - La API debe devolver un token JWT en caso de login correcto.
 - Las rutas protegidas deben requerir un token válido.
 - Si las credenciales no son válidas, la API debe responder con un error claro.
-
-### Requisitos técnicos relevantes
-
-- Uso de Express para la API REST.
-- Almacenamiento temporal en memoria para la primera iteración.
-- Uso de `bcryptjs` para cifrar contraseñas.
-- Uso de `jsonwebtoken` para emitir y validar tokens.
-- Middleware de autenticación para proteger rutas.
 
 ### Fuera de alcance
 
