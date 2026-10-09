@@ -22,6 +22,11 @@ if (DATABASE_URL && DATABASE_URL.trim().length > 0) {
     implementation: () => crypto.randomUUID()
   });
 
+  db.public.registerFunction({
+    name: 'lower',
+    implementation: (x) => (x ? String(x).toLowerCase() : null)
+  });
+
   const schemaPath = path.resolve(__dirname, '../../schema.sql');
   if (fs.existsSync(schemaPath)) {
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
@@ -38,6 +43,7 @@ const query = (text, params) => {
 };
 
 const cleanDb = async () => {
+  await pool.query('DELETE FROM user_relationships');
   await pool.query('DELETE FROM debate_comments');
   await pool.query('DELETE FROM debates');
   await pool.query('DELETE FROM users');

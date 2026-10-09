@@ -135,4 +135,4 @@ La IA implementó por completo la funcionalidad de debates y comentarios en el b
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el desarrollo de la iteración.
+- "e15de954aab74a3923e787ba3553c80f69fe4c28"

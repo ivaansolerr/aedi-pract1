@@ -4,6 +4,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const workRoutes = require('./routes/workRoutes');
 const debateRoutes = require('./routes/debateRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/works', workRoutes);
 app.use('/api/debates', debateRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
