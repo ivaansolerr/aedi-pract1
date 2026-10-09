@@ -38,6 +38,8 @@ const query = (text, params) => {
 };
 
 const cleanDb = async () => {
+  await pool.query('DELETE FROM debate_comments');
+  await pool.query('DELETE FROM debates');
   await pool.query('DELETE FROM users');
   await pool.query('DELETE FROM works');
 };
