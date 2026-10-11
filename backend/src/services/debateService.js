@@ -10,6 +10,7 @@ const {
   findCommentsByDebateId,
   sanitizeComment
 } = require('../models/commentModel');
+const { notifyDebateSubscribers } = require('./notificationService');
 
 const createDebate = async ({ workId, userId, title, description }) => {
   if (!title || String(title).trim().length === 0) {
@@ -80,6 +81,12 @@ const addComment = async ({ debateId, userId, content }) => {
     debate_id: debateId,
     user_id: userId,
     content: String(content).trim()
+  });
+
+  await notifyDebateSubscribers({
+    debateId,
+    commentId: comment.id,
+    authorId: userId
   });
 
   return sanitizeComment(comment);

@@ -8,26 +8,24 @@ Permitir abrir debates sobre obras ficticias y que los usuarios participen con c
 
 ### Requisitos
 
-- Diseñar y crear las tablas `debates` y `debate_comments` con claves foráneas hacia `works` y `users`.
-- Permitir a un usuario autenticado crear un debate asociado a una obra existente (`POST /api/works/:workId/debates`).
-- Validar que la obra exista antes de crear el debate; responder con 404 si no existe.
-- Validar que los campos obligatorios del debate (título y descripción) no estén vacíos; responder con 400 en caso contrario.
-- Permitir la consulta pública de la lista de debates (`GET /api/debates`), con posibilidad de filtrar por obra (`?work_id=...`).
-- Permitir la consulta pública del detalle de un debate (`GET /api/debates/:id`), incluyendo su información básica, datos del autor y la lista de comentarios asociados ordenados cronológicamente.
-- Responder con 404 al consultar un debate que no existe.
-- Permitir a un usuario autenticado publicar un comentario en un debate existente (`POST /api/debates/:id/comments`).
-- Validar que el comentario contenga texto no vacío; responder con 400 si está vacío.
-- Validar que el debate exista antes de insertar el comentario; responder con 404 si no existe.
-- Proteger con middleware de autenticación (`authMiddleware`) las rutas de creación de debates y comentarios (responder con 401 si no hay token válido).
-- Mantener las rutas de consulta abiertas para usuarios no autenticados (visitantes).
+- Un usuario autenticado puede crear un debate vinculado a una obra existente.
+- Un debate requiere obligatoriamente un título y una descripción.
+- No se puede crear un debate sobre una obra que no exista.
+- Cualquier usuario puede consultar la lista general de debates y filtrarla por obra.
+- Cualquier usuario puede ver el detalle de un debate y sus comentarios asociados ordenados cronológicamente.
+- Un usuario autenticado puede publicar un comentario en un debate abierto.
+- El contenido del comentario no puede estar vacío.
+- No se puede comentar en un debate inexistente.
+- La creación de debates y comentarios requiere estar autenticado.
+- Responder con error adecuado si la obra o el debate solicitados no existen.
 
 ### Fuera de alcance
 
-- Edición y eliminación de debates y comentarios (inmutables en esta iteración).
-- Paginación avanzada de debates o comentarios.
-- Anidación de comentarios (respuestas en árbol o comentarios a otros comentarios).
-- Sistema de suscripción y notificaciones de nuevos comentarios (se abordará en la iteración correspondiente).
-- Sistema de likes, votos o valoraciones en comentarios.
+- Edición y eliminación de debates y comentarios.
+- Paginación de debates o comentarios.
+- Respuestas anidadas entre comentarios.
+- Suscripción y notificaciones de actividad en debates.
+- Votaciones o valoraciones en comentarios.
 
 ## PLAN
 

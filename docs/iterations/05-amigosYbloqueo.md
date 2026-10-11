@@ -8,25 +8,22 @@ Implementar la búsqueda y consulta de perfiles públicos de usuarios y la gesti
 
 ### Requisitos
 
-- Diseñar y crear la tabla `user_relationships` con claves foráneas hacia `users` (`user_id` y `target_user_id`), tipo de relación (`'friend'` o `'blocked'`) y control de unicidad.
-- Permitir la búsqueda y listado público de usuarios (`GET /api/users`), con soporte para filtrar por coincidencia en el nombre o username (`?search=...`).
-- Ocultar estrictamente atributos sensibles (como `password_hash`) en cualquier consulta pública de usuarios.
-- Permitir la consulta del perfil público de un usuario por su identificador (`GET /api/users/:id`).
-- Responder con 404 si se consulta un usuario inexistente.
-- Permitir a un usuario autenticado agregar un contacto o bloquear a otro usuario (`POST /api/users/:id/relationships`), indicando el tipo (`{ type: "friend" | "blocked" }`).
-- Impedir que un usuario establezca relaciones consigo mismo (auto-amistad o auto-bloqueo), respondiendo con 400.
-- Validar que el tipo de relación sea estrictamente `'friend'` o `'blocked'`; responder con 400 en caso contrario.
-- Validar que el usuario objetivo exista antes de establecer la relación; responder con 404 si no existe.
-- Si ya existe una relación previa entre los dos usuarios, permitir actualizar el tipo (por ejemplo, cambiar de amigo a bloqueado) de forma consistente.
-- Permitir a un usuario autenticado eliminar una relación social existente con otro usuario (`DELETE /api/users/:id/relationships`).
-- Proteger las rutas de gestión de relaciones con `authMiddleware` (responder con 401 si no hay token válido).
-- Mantener públicas las rutas de búsqueda y perfil para usuarios visitantes.
+- Cualquier usuario puede buscar y listar perfiles públicos por nombre o usuario.
+- Los perfiles públicos nunca deben exponer contraseñas u otra información sensible.
+- Cualquier usuario puede consultar el detalle del perfil público de un usuario.
+- Un usuario autenticado puede añadir a otro usuario como contacto (amigo) o bloquearlo.
+- Un usuario no puede establecer relaciones de amistad o bloqueo consigo mismo.
+- El tipo de relación solo puede ser de amistad o de bloqueo.
+- Si ya existe una relación entre dos usuarios, se puede actualizar su estado.
+- Un usuario autenticado puede eliminar una relación de amistad o bloqueo existente.
+- La gestión de relaciones (añadir, bloquear o eliminar) requiere estar autenticado.
+- Responder con error adecuado si el usuario consultado o vinculado no existe.
 
 ### Fuera de alcance
 
-- Mensajería privada y restricción de envío de mensajes entre usuarios bloqueados (se desarrollará en la Iteración 07).
-- Solicitudes de amistad con aceptación/rechazo bidireccional (el modelo se define como gestión de red de contactos y bloqueos directa).
-- Edición de campos de perfil propio (como biografía o avatar).
+- Mensajería privada y chat directo entre usuarios.
+- Solicitudes de amistad con confirmación bidireccional.
+- Edición de biografía o avatar del propio perfil.
 
 ## PLAN
 

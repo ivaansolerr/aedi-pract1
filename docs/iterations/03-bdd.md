@@ -8,20 +8,17 @@ Implementar la base de datos en PostgreSQL para almacenar de forma consistente e
 
 ### Requisitos
 
-- Definir el esquema DDL de las tablas `users` y `works` conforme al diseño especificado en `ARCHITECTURE.md`.
-- Conectar la API Express a PostgreSQL gestionando la conexión mediante variables de entorno configurables.
-- Migrar las operaciones de usuarios (`register`, `login`, `getProfile`) para consultar y persistir datos en la tabla `users`.
-- Manejar adecuadamente los errores de unicidad de email delegados o validados por la base de datos (HTTP 409).
-- Migrar las operaciones del catálogo de obras (`create`, `getAll`, `getOne`) para consultar y persistir datos en la tabla `works`.
-- Asegurar que todos los métodos de consulta y persistencia operen de forma asíncrona (`async/await`).
-- Mantener intactos los contratos y códigos de estado HTTP de los endpoints existentes.
-- Permitir la limpieza controlada de datos para la ejecución fiable de pruebas automáticas.
+- Persistir los usuarios registrados en una base de datos real.
+- Persistir el catálogo de obras en la base de datos para no perder información al reiniciar la aplicación.
+- Mantener la restricción de que los correos electrónicos sean únicos al registrar usuarios.
+- Mantener el funcionamiento y contratos de las funciones de autenticación y obras desarrolladas en las iteraciones previas.
+- Conectar la aplicación a la base de datos mediante variables de entorno configurables.
+- Responder con mensajes de error adecuados ante fallos de conexión o datos duplicados.
 
 ### Fuera de alcance
 
-- Creación de tablas no requeridas en esta fase (debates, comentarios, suscripciones, mensajes o relaciones).
-- Uso de ORMs pesados (se prioriza el cliente SQL nativo `pg` para mantener el control y ligereza).
-- Sistema de migraciones complejo con herramientas externas (se gestionará mediante script SQL inicial de esquema).
+- Entidades adicionales no relacionadas con usuarios u obras (debates, comentarios, mensajes).
+- Uso de ORMs o herramientas de migración externas.
 - Recuperación de contraseñas o edición avanzada de perfiles.
 
 ## PLAN

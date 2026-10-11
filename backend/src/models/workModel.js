@@ -39,14 +39,45 @@ const createWork = async ({ id, title, type, genre, release_year, duration, syno
   return result.rows[0];
 };
 
-const findAllWorks = async () => {
-  const sql = `
+const findAllWorks = async ({ title, type, genre, release_year } = {}) => {
+  const conditions = [];
+  const values = [];
+
+  if (title && String(title).trim().length > 0) {
+    values.push(`%${String(title).trim()}%`);
+    conditions.push(`LOWER(title) LIKE LOWER($${values.length})`);
+  }
+
+  if (type && String(type).trim().length > 0) {
+    values.push(String(type).trim().toLowerCase());
+    conditions.push(`LOWER(type) = $${values.length}`);
+  }
+
+  if (genre && String(genre).trim().length > 0) {
+    values.push(`%${String(genre).trim().toLowerCase()}%`);
+    conditions.push(`LOWER(genre) LIKE $${values.length}`);
+  }
+
+  if (release_year !== undefined && release_year !== null && String(release_year).trim().length > 0) {
+    const yearNum = Number(release_year);
+    if (!Number.isNaN(yearNum)) {
+      values.push(yearNum);
+      conditions.push(`release_year = $${values.length}`);
+    }
+  }
+
+  let sql = `
     SELECT id, title, type, genre, release_year, duration, synopsis, created_at
     FROM works
-    ORDER BY created_at ASC
   `;
 
-  const result = await query(sql);
+  if (conditions.length > 0) {
+    sql += ` WHERE ${conditions.join(' AND ')}`;
+  }
+
+  sql += ` ORDER BY created_at ASC`;
+
+  const result = await query(sql, values);
   return result.rows;
 };
 

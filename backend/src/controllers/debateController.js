@@ -59,9 +59,25 @@ const createComment = async (req, res) => {
   }
 };
 
+const { toggleSubscription } = require('../services/notificationService');
+
+const subscribe = async (req, res) => {
+  try {
+    const result = await toggleSubscription({
+      debateId: req.params.id,
+      userId: req.user.id
+    });
+    return res.status(200).json(result);
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al gestionar la suscripción.' });
+  }
+};
+
 module.exports = {
   createForWork,
   getAll,
   getOne,
-  createComment
+  createComment,
+  subscribe
 };

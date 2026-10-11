@@ -43,6 +43,9 @@ const query = (text, params) => {
 };
 
 const cleanDb = async () => {
+  await pool.query('DELETE FROM direct_messages');
+  await pool.query('DELETE FROM notifications');
+  await pool.query('DELETE FROM debate_subscriptions');
   await pool.query('DELETE FROM user_relationships');
   await pool.query('DELETE FROM debate_comments');
   await pool.query('DELETE FROM debates');

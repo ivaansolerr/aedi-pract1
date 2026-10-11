@@ -1,10 +1,10 @@
-const crypto = require('node:crypto');
 const {
   createWork: insertWork,
   findAllWorks,
   findWorkById,
   sanitizeWork
 } = require('../models/workModel');
+const { findAllDebates, sanitizeDebate } = require('../models/debateModel');
 
 const validateWorkInput = (data) => {
   const { title, type, genre, release_year, duration, synopsis } = data || {};
@@ -54,8 +54,8 @@ const createWork = async (payload) => {
   return sanitizeWork(work);
 };
 
-const listWorks = async () => {
-  const works = await findAllWorks();
+const listWorks = async (filters = {}) => {
+  const works = await findAllWorks(filters);
   return works.map(sanitizeWork);
 };
 
@@ -68,7 +68,12 @@ const getWorkById = async (id) => {
     throw error;
   }
 
-  return sanitizeWork(work);
+  const debates = await findAllDebates({ workId: id });
+
+  return {
+    ...sanitizeWork(work),
+    debates: debates.map(sanitizeDebate)
+  };
 };
 
 module.exports = {

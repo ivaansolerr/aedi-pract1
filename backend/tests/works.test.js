@@ -103,3 +103,194 @@ test('GET /api/works/:id devuelve 404 si no existe', async () => {
   assert.equal(response.status, 404);
   assert.match(response.body.message, /no existe|no encontrada/i);
 });
+
+test('GET /api/works filtra por título con coincidencia parcial', async () => {
+  await request(app).post('/api/works').send({
+    title: 'The Lord of the Rings: The Fellowship of the Ring',
+    type: 'book',
+    genre: 'Fantasy',
+    release_year: 1954,
+    duration: '423 páginas',
+    synopsis: 'Fantasía épica.'
+  });
+
+  await request(app).post('/api/works').send({
+    title: 'The Matrix',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 1999,
+    duration: '136 min',
+    synopsis: 'Ciencia ficción.'
+  });
+
+  const response = await request(app).get('/api/works?title=fellowship');
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.works.length, 1);
+  assert.match(response.body.works[0].title, /Fellowship/i);
+});
+
+test('GET /api/works filtra por tipo de obra', async () => {
+  await request(app).post('/api/works').send({
+    title: 'Inception',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 2010,
+    duration: '148 min',
+    synopsis: 'Espionaje onírico.'
+  });
+
+  await request(app).post('/api/works').send({
+    title: 'Neuromancer',
+    type: 'book',
+    genre: 'Sci-Fi',
+    release_year: 1984,
+    duration: '271 páginas',
+    synopsis: 'Cyberpunk clásico.'
+  });
+
+  const response = await request(app).get('/api/works?type=movie');
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.works.length, 1);
+  assert.equal(response.body.works[0].title, 'Inception');
+});
+
+test('GET /api/works filtra por género', async () => {
+  await request(app).post('/api/works').send({
+    title: 'El Resplandor',
+    type: 'book',
+    genre: 'Terror',
+    release_year: 1977,
+    duration: '447 páginas',
+    synopsis: 'Terror psicológico.'
+  });
+
+  await request(app).post('/api/works').send({
+    title: 'Interstellar',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 2014,
+    duration: '169 min',
+    synopsis: 'Exploración espacial.'
+  });
+
+  const response = await request(app).get('/api/works?genre=terror');
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.works.length, 1);
+  assert.equal(response.body.works[0].title, 'El Resplandor');
+});
+
+test('GET /api/works filtra por año de lanzamiento', async () => {
+  await request(app).post('/api/works').send({
+    title: 'Obra 1999',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 1999,
+    duration: '120 min',
+    synopsis: 'Año 1999.'
+  });
+
+  await request(app).post('/api/works').send({
+    title: 'Obra 2021',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 2021,
+    duration: '120 min',
+    synopsis: 'Año 2021.'
+  });
+
+  const response = await request(app).get('/api/works?release_year=1999');
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.works.length, 1);
+  assert.equal(response.body.works[0].title, 'Obra 1999');
+});
+
+test('GET /api/works combina múltiples filtros simultáneos', async () => {
+  await request(app).post('/api/works').send({
+    title: 'Dune: Part One',
+    type: 'movie',
+    genre: 'Sci-Fi',
+    release_year: 2021,
+    duration: '155 min',
+    synopsis: 'Película en Arrakis.'
+  });
+
+  await request(app).post('/api/works').send({
+    title: 'Dune',
+    type: 'book',
+    genre: 'Sci-Fi',
+    release_year: 1965,
+    duration: '412 páginas',
+    synopsis: 'Novela original.'
+  });
+
+  const response = await request(app).get('/api/works?type=movie&genre=sci-fi&release_year=2021');
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.works.length, 1);
+  assert.equal(response.body.works[0].title, 'Dune: Part One');
+});
+
+test('GET /api/works devuelve array vacío si ningún resultado coincide', async () => {
+  await request(app).post('/api/works').send({
+    title: 'Obra Existente',
+    type: 'movie',
+    genre: 'Acción',
+    release_year: 2020,
+    duration: '100 min',
+    synopsis: 'Sinopsis.'
+  });
+
+  const response = await request(app).get('/api/works?title=NoExisteNadaConEsteTitulo');
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(response.body.works, []);
+});
+
+test('GET /api/works/:id incluye los debates asociados a la obra', async () => {
+  // Crear obra
+  const workRes = await request(app).post('/api/works').send({
+    title: 'Solaris',
+    type: 'book',
+    genre: 'Sci-Fi',
+    release_year: 1961,
+    duration: '204 páginas',
+    synopsis: 'Misterio en el planeta Solaris.'
+  });
+  const workId = workRes.body.work.id;
+
+  // Registrar y autenticar usuario
+  await request(app).post('/api/auth/register').send({
+    name: 'Stanislaw',
+    email: 'stanislaw@test.com',
+    password: 'password123'
+  });
+  const loginRes = await request(app).post('/api/auth/login').send({
+    email: 'stanislaw@test.com',
+    password: 'password123'
+  });
+  const token = loginRes.body.token;
+
+  // Crear debate sobre la obra
+  const debateRes = await request(app)
+    .post(`/api/works/${workId}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      title: 'El océano consciente',
+      description: '¿Puede la humanidad comunicarse con Solaris?'
+    });
+
+  // Consultar ficha de la obra
+  const response = await request(app).get(`/api/works/${workId}`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.work.id, workId);
+  assert.ok(Array.isArray(response.body.work.debates));
+  assert.equal(response.body.work.debates.length, 1);
+  assert.equal(response.body.work.debates[0].id, debateRes.body.debate.id);
+  assert.equal(response.body.work.debates[0].title, 'El océano consciente');
+});
+
