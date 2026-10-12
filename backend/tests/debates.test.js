@@ -9,7 +9,9 @@ test.beforeEach(async () => {
   await cleanDb();
 });
 
-const getAuthToken = async (name = 'User Test', email = 'test@example.com') => {
+const getAuthToken = async (emailOrName = 'test@example.com', maybeEmail) => {
+  const email = emailOrName.includes('@') ? emailOrName : (maybeEmail || 'test@example.com');
+  const name = emailOrName.includes('@') ? emailOrName.split('@')[0] : emailOrName;
   const res = await request(app)
     .post('/api/auth/register')
     .send({ name, email, password: 'password123' });
@@ -245,3 +247,195 @@ test('POST /api/debates/:id/comments rechaza comentario con contenido vacío', a
   assert.equal(response.status, 400);
   assert.match(response.body.message, /contenido|obligatorio/i);
 });
+
+test('PUT /api/debates/:id modifica un debate propio con datos válidos', async () => {
+  const token = await getAuthToken('author@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Título original', description: 'Descripción original' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const updateRes = await request(app)
+    .put(`/api/debates/${debateId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Título modificado', description: 'Descripción actualizada' });
+
+  assert.equal(updateRes.status, 200);
+  assert.equal(updateRes.body.debate.title, 'Título modificado');
+  assert.equal(updateRes.body.debate.description, 'Descripción actualizada');
+});
+
+test('PUT /api/debates/:id rechaza modificación de debate ajeno', async () => {
+  const authorToken = await getAuthToken('author1@test.com');
+  const otherToken = await getAuthToken('other@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${authorToken}`)
+    .send({ title: 'Debate de autor 1', description: 'Desc' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const updateRes = await request(app)
+    .put(`/api/debates/${debateId}`)
+    .set('Authorization', `Bearer ${otherToken}`)
+    .send({ title: 'Hackeado', description: 'Nueva desc' });
+
+  assert.equal(updateRes.status, 403);
+  assert.match(updateRes.body.message, /permiso/i);
+});
+
+test('PUT /api/debates/:id rechaza modificación con campos vacíos', async () => {
+  const token = await getAuthToken('author2@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Debate test', description: 'Desc test' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const updateRes = await request(app)
+    .put(`/api/debates/${debateId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: '', description: 'Desc' });
+
+  assert.equal(updateRes.status, 400);
+});
+
+test('PUT /api/debates/:id devuelve 404 para debate inexistente', async () => {
+  const token = await getAuthToken('author3@test.com');
+
+  const updateRes = await request(app)
+    .put('/api/debates/00000000-0000-4000-8000-000000000000')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Título', description: 'Desc' });
+
+  assert.equal(updateRes.status, 404);
+});
+
+test('DELETE /api/debates/:id elimina un debate propio', async () => {
+  const token = await getAuthToken('author4@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'A borrar', description: 'Desc' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const deleteRes = await request(app)
+    .delete(`/api/debates/${debateId}`)
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(deleteRes.status, 200);
+
+  // Verificar que ya no existe
+  const getRes = await request(app).get(`/api/debates/${debateId}`);
+  assert.equal(getRes.status, 404);
+});
+
+test('DELETE /api/debates/:id rechaza eliminación de debate ajeno', async () => {
+  const authorToken = await getAuthToken('author5@test.com');
+  const otherToken = await getAuthToken('intruder@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${authorToken}`)
+    .send({ title: 'Debate protegido', description: 'Desc' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const deleteRes = await request(app)
+    .delete(`/api/debates/${debateId}`)
+    .set('Authorization', `Bearer ${otherToken}`);
+
+  assert.equal(deleteRes.status, 403);
+});
+
+test('DELETE /api/debates/:id devuelve 404 para debate inexistente', async () => {
+  const token = await getAuthToken('author6@test.com');
+
+  const deleteRes = await request(app)
+    .delete('/api/debates/00000000-0000-4000-8000-000000000000')
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(deleteRes.status, 404);
+});
+
+test('DELETE /api/debates/:id/comments/:commentId elimina un comentario propio', async () => {
+  const authorToken = await getAuthToken('author7@test.com');
+  const commenterToken = await getAuthToken('commenter@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${authorToken}`)
+    .send({ title: 'Debate con comentario', description: 'Desc' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const commentRes = await request(app)
+    .post(`/api/debates/${debateId}/comments`)
+    .set('Authorization', `Bearer ${commenterToken}`)
+    .send({ content: 'Comentario que borraré' });
+
+  const commentId = commentRes.body.comment.id;
+
+  const deleteRes = await request(app)
+    .delete(`/api/debates/${debateId}/comments/${commentId}`)
+    .set('Authorization', `Bearer ${commenterToken}`);
+
+  assert.equal(deleteRes.status, 200);
+
+  // Verificar que el comentario ya no está en el debate
+  const getDebateRes = await request(app).get(`/api/debates/${debateId}`);
+  assert.equal(getDebateRes.body.debate.comments.length, 0);
+});
+
+test('DELETE /api/debates/:id/comments/:commentId rechaza eliminación de comentario ajeno', async () => {
+  const authorToken = await getAuthToken('author8@test.com');
+  const commenterToken = await getAuthToken('commenter2@test.com');
+  const intruderToken = await getAuthToken('intruder2@test.com');
+  const work = await createTestWork();
+
+  const debateRes = await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${authorToken}`)
+    .send({ title: 'Debate', description: 'Desc' });
+
+  const debateId = debateRes.body.debate.id;
+
+  const commentRes = await request(app)
+    .post(`/api/debates/${debateId}/comments`)
+    .set('Authorization', `Bearer ${commenterToken}`)
+    .send({ content: 'Comentario protegido' });
+
+  const commentId = commentRes.body.comment.id;
+
+  const deleteRes = await request(app)
+    .delete(`/api/debates/${debateId}/comments/${commentId}`)
+    .set('Authorization', `Bearer ${intruderToken}`);
+
+  assert.equal(deleteRes.status, 403);
+});
+
+test('Operaciones PUT y DELETE en debates requieren autenticación', async () => {
+  const putRes = await request(app).put('/api/debates/00000000-0000-4000-8000-000000000000').send({ title: 'test' });
+  assert.equal(putRes.status, 401);
+
+  const delRes = await request(app).delete('/api/debates/00000000-0000-4000-8000-000000000000');
+  assert.equal(delRes.status, 401);
+
+  const delComRes = await request(app).delete('/api/debates/00000000-0000-4000-8000-000000000000/comments/00000000-0000-4000-8000-000000000000');
+  assert.equal(delComRes.status, 401);
+});
+

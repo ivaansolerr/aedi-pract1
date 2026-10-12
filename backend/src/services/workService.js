@@ -1,7 +1,10 @@
+const crypto = require('node:crypto');
 const {
   createWork: insertWork,
   findAllWorks,
   findWorkById,
+  updateWork,
+  deleteWork,
   sanitizeWork
 } = require('../models/workModel');
 const { findAllDebates, sanitizeDebate } = require('../models/debateModel');
@@ -76,8 +79,35 @@ const getWorkById = async (id) => {
   };
 };
 
+const updateWorkById = async (id, data) => {
+  const existing = await findWorkById(id);
+  if (!existing) {
+    const error = new Error('La obra no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const parsed = validateWorkInput(data);
+  const updated = await updateWork({ id, ...parsed });
+  return sanitizeWork(updated);
+};
+
+const deleteWorkById = async (id) => {
+  const existing = await findWorkById(id);
+  if (!existing) {
+    const error = new Error('La obra no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await deleteWork(id);
+  return { message: 'Obra eliminada correctamente.' };
+};
+
 module.exports = {
   createWork,
   listWorks,
-  getWorkById
+  getWorkById,
+  updateWorkById,
+  deleteWorkById
 };

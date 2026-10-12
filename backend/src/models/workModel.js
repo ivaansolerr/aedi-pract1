@@ -93,9 +93,40 @@ const findWorkById = async (id) => {
   return result.rows[0] || null;
 };
 
+const updateWork = async ({ id, title, type, genre, release_year, duration, synopsis }) => {
+  const sql = `
+    UPDATE works
+    SET title = $2, type = $3, genre = $4, release_year = $5, duration = $6, synopsis = $7
+    WHERE id = $1
+    RETURNING id, title, type, genre, release_year, duration, synopsis, created_at
+  `;
+  const result = await query(sql, [
+    id,
+    title,
+    type,
+    genre,
+    Number(release_year),
+    duration,
+    synopsis
+  ]);
+  return result.rows[0] || null;
+};
+
+const deleteWork = async (id) => {
+  const sql = `
+    DELETE FROM works
+    WHERE id = $1
+    RETURNING id
+  `;
+  const result = await query(sql, [id]);
+  return result.rowCount > 0;
+};
+
 module.exports = {
   createWork,
   findAllWorks,
   findWorkById,
+  updateWork,
+  deleteWork,
   sanitizeWork
 };

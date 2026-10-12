@@ -149,4 +149,4 @@ Implementación completa y validada de la mensajería privada y del módulo de S
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el desarrollo de la iteración.
+- "8f47a90dd18b349c6937e9d2263e05ef7cee5a92"

@@ -2,7 +2,10 @@ const {
   createDebate,
   listDebates,
   getDebateById,
-  addComment
+  addComment,
+  editDebate,
+  removeDebate,
+  removeComment
 } = require('../services/debateService');
 
 const createForWork = async (req, res) => {
@@ -59,6 +62,51 @@ const createComment = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  try {
+    const debate = await editDebate({
+      debateId: req.params.id,
+      userId: req.user.id,
+      title: req.body.title,
+      description: req.body.description
+    });
+    return res.status(200).json({
+      message: 'Debate actualizado correctamente.',
+      debate
+    });
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al actualizar el debate.' });
+  }
+};
+
+const remove = async (req, res) => {
+  try {
+    const result = await removeDebate({
+      debateId: req.params.id,
+      userId: req.user.id
+    });
+    return res.status(200).json(result);
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al eliminar el debate.' });
+  }
+};
+
+const deleteCommentHandler = async (req, res) => {
+  try {
+    const result = await removeComment({
+      debateId: req.params.id,
+      commentId: req.params.commentId,
+      userId: req.user.id
+    });
+    return res.status(200).json(result);
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al eliminar el comentario.' });
+  }
+};
+
 const { toggleSubscription } = require('../services/notificationService');
 
 const subscribe = async (req, res) => {
@@ -79,5 +127,8 @@ module.exports = {
   getAll,
   getOne,
   createComment,
-  subscribe
+  subscribe,
+  update,
+  remove,
+  deleteCommentHandler
 };

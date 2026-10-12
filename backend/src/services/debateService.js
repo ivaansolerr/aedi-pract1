@@ -3,11 +3,15 @@ const {
   createDebate: insertDebate,
   findAllDebates,
   findDebateById,
+  updateDebate,
+  deleteDebate,
   sanitizeDebate
 } = require('../models/debateModel');
 const {
   createComment: insertComment,
   findCommentsByDebateId,
+  findCommentById,
+  deleteComment,
   sanitizeComment
 } = require('../models/commentModel');
 const { notifyDebateSubscribers } = require('./notificationService');
@@ -92,9 +96,96 @@ const addComment = async ({ debateId, userId, content }) => {
   return sanitizeComment(comment);
 };
 
+const editDebate = async ({ debateId, userId, title, description }) => {
+  const debate = await findDebateById(debateId);
+  if (!debate) {
+    const error = new Error('El debate no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (debate.user_id !== userId) {
+    const error = new Error('No tienes permiso para modificar este debate.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (!title || String(title).trim().length === 0) {
+    const error = new Error('El título es obligatorio.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!description || String(description).trim().length === 0) {
+    const error = new Error('La descripción es obligatoria.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const updated = await updateDebate({
+    id: debateId,
+    title: String(title).trim(),
+    description: String(description).trim()
+  });
+
+  return sanitizeDebate(updated);
+};
+
+const removeDebate = async ({ debateId, userId }) => {
+  const debate = await findDebateById(debateId);
+  if (!debate) {
+    const error = new Error('El debate no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (debate.user_id !== userId) {
+    const error = new Error('No tienes permiso para eliminar este debate.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  await deleteDebate(debateId);
+  return { message: 'Debate eliminado correctamente.' };
+};
+
+const removeComment = async ({ debateId, commentId, userId }) => {
+  const debate = await findDebateById(debateId);
+  if (!debate) {
+    const error = new Error('El debate no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const comment = await findCommentById(commentId);
+  if (!comment) {
+    const error = new Error('El comentario no existe.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (comment.debate_id !== debateId) {
+    const error = new Error('El comentario no pertenece a este debate.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (comment.user_id !== userId) {
+    const error = new Error('No tienes permiso para eliminar este comentario.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  await deleteComment(commentId);
+  return { message: 'Comentario eliminado correctamente.' };
+};
+
 module.exports = {
   createDebate,
   listDebates,
   getDebateById,
-  addComment
+  addComment,
+  editDebate,
+  removeDebate,
+  removeComment
 };

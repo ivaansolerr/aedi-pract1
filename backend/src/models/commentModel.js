@@ -41,8 +41,31 @@ const findCommentsByDebateId = async (debateId) => {
   return result.rows;
 };
 
+const findCommentById = async (id) => {
+  const sql = `
+    SELECT id, debate_id, user_id, content, created_at
+    FROM debate_comments
+    WHERE id = $1
+    LIMIT 1
+  `;
+  const result = await query(sql, [id]);
+  return result.rows[0] || null;
+};
+
+const deleteComment = async (id) => {
+  const sql = `
+    DELETE FROM debate_comments
+    WHERE id = $1
+    RETURNING id
+  `;
+  const result = await query(sql, [id]);
+  return result.rowCount > 0;
+};
+
 module.exports = {
   createComment,
   findCommentsByDebateId,
+  findCommentById,
+  deleteComment,
   sanitizeComment
 };

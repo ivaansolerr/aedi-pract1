@@ -144,4 +144,4 @@ Implementación completa y validada en el backend. Las 11 nuevas pruebas automá
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el desarrollo de la iteración.
+- "8f47a90dd18b349c6937e9d2263e05ef7cee5a92"

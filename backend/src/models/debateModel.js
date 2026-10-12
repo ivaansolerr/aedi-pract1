@@ -65,9 +65,32 @@ const findDebateById = async (id) => {
   return result.rows[0] || null;
 };
 
+const updateDebate = async ({ id, title, description }) => {
+  const sql = `
+    UPDATE debates
+    SET title = $2, description = $3
+    WHERE id = $1
+    RETURNING id, work_id, user_id, title, description, created_at
+  `;
+  const result = await query(sql, [id, title, description]);
+  return result.rows[0] || null;
+};
+
+const deleteDebate = async (id) => {
+  const sql = `
+    DELETE FROM debates
+    WHERE id = $1
+    RETURNING id
+  `;
+  const result = await query(sql, [id]);
+  return result.rowCount > 0;
+};
+
 module.exports = {
   createDebate,
   findAllDebates,
   findDebateById,
+  updateDebate,
+  deleteDebate,
   sanitizeDebate
 };

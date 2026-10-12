@@ -294,3 +294,97 @@ test('GET /api/works/:id incluye los debates asociados a la obra', async () => {
   assert.equal(response.body.work.debates[0].title, 'El océano consciente');
 });
 
+test('PUT /api/works/:id modifica una obra existente', async () => {
+  await request(app).post('/api/auth/register').send({
+    name: 'AdminUser',
+    email: 'admin@test.com',
+    password: 'password123'
+  });
+  const loginRes = await request(app).post('/api/auth/login').send({
+    email: 'admin@test.com',
+    password: 'password123'
+  });
+  const token = loginRes.body.token;
+
+  const createRes = await request(app).post('/api/works').send({
+    title: 'Obra Previa',
+    type: 'book',
+    genre: 'Drama',
+    release_year: 2000,
+    duration: '300 páginas',
+    synopsis: 'Sinopsis original.'
+  });
+  const workId = createRes.body.work.id;
+
+  const updateRes = await request(app)
+    .put(`/api/works/${workId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      title: 'Obra Modificada',
+      type: 'book',
+      genre: 'Drama / Suspense',
+      release_year: 2001,
+      duration: '320 páginas',
+      synopsis: 'Sinopsis actualizada.'
+    });
+
+  assert.equal(updateRes.status, 200);
+  assert.equal(updateRes.body.work.title, 'Obra Modificada');
+  assert.equal(updateRes.body.work.genre, 'Drama / Suspense');
+  assert.equal(updateRes.body.work.release_year, 2001);
+});
+
+test('PUT /api/works/:id rechaza modificación sin autenticación', async () => {
+  const updateRes = await request(app)
+    .put('/api/works/00000000-0000-4000-8000-000000000000')
+    .send({
+      title: 'Título',
+      type: 'book',
+      genre: 'Drama',
+      release_year: 2000,
+      duration: '100 p',
+      synopsis: 'Desc'
+    });
+
+  assert.equal(updateRes.status, 401);
+});
+
+test('DELETE /api/works/:id elimina una obra existente', async () => {
+  await request(app).post('/api/auth/register').send({
+    name: 'AdminUser2',
+    email: 'admin2@test.com',
+    password: 'password123'
+  });
+  const loginRes = await request(app).post('/api/auth/login').send({
+    email: 'admin2@test.com',
+    password: 'password123'
+  });
+  const token = loginRes.body.token;
+
+  const createRes = await request(app).post('/api/works').send({
+    title: 'Obra para borrar',
+    type: 'movie',
+    genre: 'Comedia',
+    release_year: 2018,
+    duration: '90 min',
+    synopsis: 'Sinopsis.'
+  });
+  const workId = createRes.body.work.id;
+
+  const deleteRes = await request(app)
+    .delete(`/api/works/${workId}`)
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(deleteRes.status, 200);
+
+  // Verificar que ya no existe
+  const getRes = await request(app).get(`/api/works/${workId}`);
+  assert.equal(getRes.status, 404);
+});
+
+test('DELETE /api/works/:id rechaza eliminación sin autenticación', async () => {
+  const deleteRes = await request(app).delete('/api/works/00000000-0000-4000-8000-000000000000');
+  assert.equal(deleteRes.status, 401);
+});
+
+

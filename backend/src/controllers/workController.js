@@ -1,4 +1,10 @@
-const { createWork, listWorks, getWorkById } = require('../services/workService');
+const {
+  createWork,
+  listWorks,
+  getWorkById,
+  updateWorkById,
+  deleteWorkById
+} = require('../services/workService');
 
 const create = async (req, res) => {
   try {
@@ -30,8 +36,33 @@ const getOne = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  try {
+    const work = await updateWorkById(req.params.id, req.body);
+    return res.status(200).json({
+      message: 'Obra actualizada correctamente.',
+      work
+    });
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al actualizar la obra.' });
+  }
+};
+
+const remove = async (req, res) => {
+  try {
+    const result = await deleteWorkById(req.params.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al eliminar la obra.' });
+  }
+};
+
 module.exports = {
   create,
   getAll,
-  getOne
+  getOne,
+  update,
+  remove
 };
