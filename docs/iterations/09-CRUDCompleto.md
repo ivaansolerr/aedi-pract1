@@ -146,5 +146,5 @@ Implementación del ciclo CRUD completo finalizada y validada. Se añadieron los
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el commit de la iteración.
+- "d4240e3a01a637109de2f972194c038df7253035"
 

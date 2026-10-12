@@ -88,8 +88,14 @@ async function getProfile(userId) {
   return sanitizeUser(user);
 }
 
+async function updateProfile({ userId, username, name, bio, avatar_url }) {
+  const { updateUserProfileService } = require('./userService');
+  return updateUserProfileService({ userId, targetUserId: userId, username, name, bio, avatar_url });
+}
+
 module.exports = {
   registerUser,
   loginUser,
-  getProfile
+  getProfile,
+  updateProfile
 };

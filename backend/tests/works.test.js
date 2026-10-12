@@ -387,4 +387,35 @@ test('DELETE /api/works/:id rechaza eliminación sin autenticación', async () =
   assert.equal(deleteRes.status, 401);
 });
 
+const createTestWork = async ({ title, release_year = 2020, type = 'movie', genre = 'Sci-Fi' }) => {
+  const res = await request(app).post('/api/works').send({
+    title,
+    type,
+    genre,
+    release_year,
+    duration: '120 min',
+    synopsis: 'Sinopsis'
+  });
+  return res.body.work;
+};
+
+test('GET /api/works pagina el catálogo de obras con metadatos de navegación', async () => {
+  await createTestWork({ title: 'Obra Alfa', release_year: 2010 });
+  await createTestWork({ title: 'Obra Beta', release_year: 2015 });
+  await createTestWork({ title: 'Obra Gamma', release_year: 2020 });
+
+  const page1 = await request(app).get('/api/works?page=1&limit=2');
+  assert.equal(page1.status, 200);
+  assert.equal(page1.body.works.length, 2);
+  assert.equal(page1.body.pagination.total, 3);
+  assert.equal(page1.body.pagination.page, 1);
+  assert.equal(page1.body.pagination.limit, 2);
+  assert.equal(page1.body.pagination.totalPages, 2);
+
+  const page2 = await request(app).get('/api/works?page=2&limit=2');
+  assert.equal(page2.status, 200);
+  assert.equal(page2.body.works.length, 1);
+  assert.equal(page2.body.pagination.page, 2);
+});
+
 

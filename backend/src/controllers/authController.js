@@ -1,4 +1,4 @@
-const { registerUser, loginUser, getProfile } = require('../services/authService');
+const { registerUser, loginUser, getProfile, updateProfile } = require('../services/authService');
 
 async function register(req, res) {
   try {
@@ -36,8 +36,30 @@ async function me(req, res) {
   }
 }
 
+async function updateMe(req, res) {
+  try {
+    const user = await updateProfile({
+      userId: req.user.id,
+      username: req.body.username,
+      name: req.body.name,
+      bio: req.body.bio,
+      avatar_url: req.body.avatar_url
+    });
+    return res.status(200).json({
+      message: 'Perfil actualizado correctamente.',
+      user
+    });
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({
+      message: error.message || 'Error al actualizar el perfil.'
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
-  me
+  me,
+  updateMe
 };

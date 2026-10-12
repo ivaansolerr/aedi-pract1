@@ -15,6 +15,7 @@
     - Implementación de mensajería privada uno a uno con restricciones de bloqueo y módulo de Supabase (Iteración 07)
     - Implementación de búsqueda y filtros avanzados en obras y debates asociados en la ficha de obra (Iteración 08)
     - Implementación del ciclo CRUD completo para obras, debates y comentarios con control estricto de autoría (Iteración 09)
+    - Implementación de edición de perfil propio de usuario y paginación con metadatos en listados de obras, debates y usuarios (Iteración 10)
 
 # Partes modificadas manualmente
     - Nombres de los elementos de la base de datos

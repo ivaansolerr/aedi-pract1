@@ -28,8 +28,9 @@ const createForWork = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    const debates = await listDebates({ workId: req.query.work_id });
-    return res.status(200).json({ debates });
+    const { work_id, page, limit } = req.query;
+    const { debates, pagination } = await listDebates({ workId: work_id, page, limit });
+    return res.status(200).json({ debates, pagination });
   } catch (error) {
     return res.status(500).json({ message: error.message || 'Error al listar los debates.' });
   }

@@ -29,7 +29,8 @@ const createDebate = async ({ id, work_id, user_id, title, description }) => {
   return result.rows[0];
 };
 
-const findAllDebates = async ({ workId } = {}) => {
+const findAllDebates = async ({ workId, page, limit } = {}) => {
+  let countSql = `SELECT COUNT(*) AS total FROM debates d`;
   let sql = `
     SELECT d.id, d.work_id, d.user_id, d.title, d.description, d.created_at,
            u.username as author_name, w.title as work_title
@@ -38,16 +39,33 @@ const findAllDebates = async ({ workId } = {}) => {
     JOIN works w ON d.work_id = w.id
   `;
   const params = [];
+  const countParams = [];
 
   if (workId) {
+    countSql += ` WHERE d.work_id = $1`;
+    countParams.push(workId);
     sql += ` WHERE d.work_id = $1`;
     params.push(workId);
   }
 
+  const countResult = await query(countSql, countParams);
+  const total = parseInt(countResult.rows[0]?.total || 0, 10);
+
   sql += ` ORDER BY d.created_at DESC`;
 
+  if (page !== undefined || limit !== undefined) {
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+    const offset = (pageNum - 1) * limitNum;
+    sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(limitNum, offset);
+  }
+
   const result = await query(sql, params);
-  return result.rows;
+  return {
+    debates: result.rows,
+    total
+  };
 };
 
 const findDebateById = async (id) => {

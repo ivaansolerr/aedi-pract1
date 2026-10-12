@@ -172,3 +172,103 @@ test('POST /api/users/:id/relationships rechaza gestión sin autenticación', as
   assert.equal(response.status, 401);
   assert.match(response.body.message, /token/i);
 });
+
+test('PUT /api/auth/me actualiza perfil propio con datos válidos', async () => {
+  const { token, user } = await registerUser('OriginalName', 'original@test.com');
+
+  const response = await request(app)
+    .put('/api/auth/me')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      username: 'UpdatedName',
+      bio: 'Amante de la ciencia ficción y fantasía.',
+      avatar_url: 'https://example.com/avatar.png'
+    });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.user.username, 'UpdatedName');
+  assert.equal(response.body.user.bio, 'Amante de la ciencia ficción y fantasía.');
+  assert.equal(response.body.user.avatar_url, 'https://example.com/avatar.png');
+
+  // Comprobar que GET /api/users/:id refleja los cambios
+  const getProfile = await request(app).get(`/api/users/${user.id}`);
+  assert.equal(getProfile.status, 200);
+  assert.equal(getProfile.body.user.username, 'UpdatedName');
+  assert.equal(getProfile.body.user.bio, 'Amante de la ciencia ficción y fantasía.');
+});
+
+test('PUT /api/users/me permite actualizar perfil mediante alias', async () => {
+  const { token } = await registerUser('UserAlias', 'alias@test.com');
+
+  const response = await request(app)
+    .put('/api/users/me')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ bio: 'Nueva biografía vía alias' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.user.bio, 'Nueva biografía vía alias');
+});
+
+test('PUT /api/auth/me rechaza actualización con nombre de usuario vacío', async () => {
+  const { token } = await registerUser('ValidUser', 'valid@test.com');
+
+  const response = await request(app)
+    .put('/api/auth/me')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ username: '   ' });
+
+  assert.equal(response.status, 400);
+});
+
+test('PUT /api/auth/me rechaza actualización con nombre de usuario ya en uso', async () => {
+  await registerUser('ExistingUser', 'existing@test.com');
+  const user2 = await registerUser('SecondUser', 'second@test.com');
+
+  const response = await request(app)
+    .put('/api/auth/me')
+    .set('Authorization', `Bearer ${user2.token}`)
+    .send({ username: 'ExistingUser' });
+
+  assert.equal(response.status, 409);
+  assert.match(response.body.message, /ya existe/i);
+});
+
+test('PUT /api/users/:id rechaza modificación de perfil ajeno', async () => {
+  const user1 = await registerUser('Victim', 'victim@test.com');
+  const user2 = await registerUser('Attacker', 'attacker@test.com');
+
+  const response = await request(app)
+    .put(`/api/users/${user1.user.id}`)
+    .set('Authorization', `Bearer ${user2.token}`)
+    .send({ bio: 'Hackeado' });
+
+  assert.equal(response.status, 403);
+  assert.match(response.body.message, /permiso/i);
+});
+
+test('PUT /api/auth/me rechaza modificación sin autenticación', async () => {
+  const response = await request(app)
+    .put('/api/auth/me')
+    .send({ bio: 'Anónimo' });
+
+  assert.equal(response.status, 401);
+});
+
+test('GET /api/users pagina el listado de usuarios con metadatos de navegación', async () => {
+  await registerUser('UserA', 'usera@test.com');
+  await registerUser('UserB', 'userb@test.com');
+  await registerUser('UserC', 'userc@test.com');
+
+  const page1 = await request(app).get('/api/users?page=1&limit=2');
+  assert.equal(page1.status, 200);
+  assert.equal(page1.body.users.length, 2);
+  assert.equal(page1.body.pagination.total, 3);
+  assert.equal(page1.body.pagination.page, 1);
+  assert.equal(page1.body.pagination.limit, 2);
+  assert.equal(page1.body.pagination.totalPages, 2);
+
+  const page2 = await request(app).get('/api/users?page=2&limit=2');
+  assert.equal(page2.status, 200);
+  assert.equal(page2.body.users.length, 1);
+  assert.equal(page2.body.pagination.page, 2);
+});

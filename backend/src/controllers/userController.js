@@ -1,14 +1,16 @@
 const {
   getUsersList,
   getUserProfile,
+  updateUserProfileService,
   manageRelationship,
   removeRelationship
 } = require('../services/userService');
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await getUsersList({ query: req.query.search });
-    return res.status(200).json({ users });
+    const { search, page, limit } = req.query;
+    const { users, pagination } = await getUsersList({ query: search, page, limit });
+    return res.status(200).json({ users, pagination });
   } catch (error) {
     return res.status(500).json({ message: error.message || 'Error al obtener usuarios.' });
   }
@@ -56,9 +58,31 @@ const deleteRelationshipHandler = async (req, res) => {
   }
 };
 
+const updateProfileHandler = async (req, res) => {
+  try {
+    const targetUserId = req.params.id === 'me' ? req.user.id : (req.params.id || req.user.id);
+    const user = await updateUserProfileService({
+      userId: req.user.id,
+      targetUserId,
+      username: req.body.username,
+      name: req.body.name,
+      bio: req.body.bio,
+      avatar_url: req.body.avatar_url
+    });
+    return res.status(200).json({
+      message: 'Perfil actualizado correctamente.',
+      user
+    });
+  } catch (error) {
+    const status = error.statusCode || 400;
+    return res.status(status).json({ message: error.message || 'Error al actualizar el perfil.' });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
+  updateProfileHandler,
   updateRelationship,
   deleteRelationshipHandler
 };

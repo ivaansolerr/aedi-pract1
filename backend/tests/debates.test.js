@@ -439,3 +439,36 @@ test('Operaciones PUT y DELETE en debates requieren autenticación', async () =>
   assert.equal(delComRes.status, 401);
 });
 
+test('GET /api/debates pagina el listado de debates con metadatos de navegación', async () => {
+  const token = await getAuthToken('debater@test.com');
+  const work = await createTestWork('Obra Debates');
+
+  await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Debate 1', description: 'Desc 1' });
+
+  await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Debate 2', description: 'Desc 2' });
+
+  await request(app)
+    .post(`/api/works/${work.id}/debates`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ title: 'Debate 3', description: 'Desc 3' });
+
+  const page1 = await request(app).get('/api/debates?page=1&limit=2');
+  assert.equal(page1.status, 200);
+  assert.equal(page1.body.debates.length, 2);
+  assert.equal(page1.body.pagination.total, 3);
+  assert.equal(page1.body.pagination.page, 1);
+  assert.equal(page1.body.pagination.limit, 2);
+  assert.equal(page1.body.pagination.totalPages, 2);
+
+  const page2 = await request(app).get('/api/debates?page=2&limit=2');
+  assert.equal(page2.status, 200);
+  assert.equal(page2.body.debates.length, 1);
+  assert.equal(page2.body.pagination.page, 2);
+});
+

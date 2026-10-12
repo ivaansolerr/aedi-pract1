@@ -46,9 +46,21 @@ const createDebate = async ({ workId, userId, title, description }) => {
   return sanitizeDebate(debate);
 };
 
-const listDebates = async ({ workId } = {}) => {
-  const debates = await findAllDebates({ workId });
-  return debates.map(sanitizeDebate);
+const listDebates = async ({ workId, page, limit } = {}) => {
+  const { debates, total } = await findAllDebates({ workId, page, limit });
+  const pageNum = page !== undefined ? Math.max(1, parseInt(page, 10) || 1) : 1;
+  const limitNum = limit !== undefined ? Math.max(1, Math.min(100, parseInt(limit, 10) || 20)) : total;
+  const totalPages = limitNum > 0 ? Math.ceil(total / limitNum) : 1;
+
+  return {
+    debates: debates.map(sanitizeDebate),
+    pagination: {
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages
+    }
+  };
 };
 
 const getDebateById = async (id) => {

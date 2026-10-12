@@ -58,8 +58,20 @@ const createWork = async (payload) => {
 };
 
 const listWorks = async (filters = {}) => {
-  const works = await findAllWorks(filters);
-  return works.map(sanitizeWork);
+  const { works, total } = await findAllWorks(filters);
+  const pageNum = filters.page !== undefined ? Math.max(1, parseInt(filters.page, 10) || 1) : 1;
+  const limitNum = filters.limit !== undefined ? Math.max(1, Math.min(100, parseInt(filters.limit, 10) || 20)) : total;
+  const totalPages = limitNum > 0 ? Math.ceil(total / limitNum) : 1;
+
+  return {
+    works: works.map(sanitizeWork),
+    pagination: {
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages
+    }
+  };
 };
 
 const getWorkById = async (id) => {
@@ -71,11 +83,12 @@ const getWorkById = async (id) => {
     throw error;
   }
 
-  const debates = await findAllDebates({ workId: id });
+  const debatesResult = await findAllDebates({ workId: id });
+  const debatesList = Array.isArray(debatesResult) ? debatesResult : (debatesResult.debates || []);
 
   return {
     ...sanitizeWork(work),
-    debates: debates.map(sanitizeDebate)
+    debates: debatesList.map(sanitizeDebate)
   };
 };
 

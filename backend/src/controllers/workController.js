@@ -18,9 +18,9 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    const { title, type, genre, release_year } = req.query;
-    const works = await listWorks({ title, type, genre, release_year });
-    return res.status(200).json({ works });
+    const { title, type, genre, release_year, page, limit } = req.query;
+    const { works, pagination } = await listWorks({ title, type, genre, release_year, page, limit });
+    return res.status(200).json({ works, pagination });
   } catch (error) {
     return res.status(500).json({ message: error.message || 'Error al listar obras.' });
   }

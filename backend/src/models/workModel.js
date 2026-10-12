@@ -39,7 +39,7 @@ const createWork = async ({ id, title, type, genre, release_year, duration, syno
   return result.rows[0];
 };
 
-const findAllWorks = async ({ title, type, genre, release_year } = {}) => {
+const findAllWorks = async ({ title, type, genre, release_year, page, limit } = {}) => {
   const conditions = [];
   const values = [];
 
@@ -66,19 +66,36 @@ const findAllWorks = async ({ title, type, genre, release_year } = {}) => {
     }
   }
 
+  let countSql = `SELECT COUNT(*) AS total FROM works`;
   let sql = `
     SELECT id, title, type, genre, release_year, duration, synopsis, created_at
     FROM works
   `;
 
   if (conditions.length > 0) {
-    sql += ` WHERE ${conditions.join(' AND ')}`;
+    const whereClause = ` WHERE ${conditions.join(' AND ')}`;
+    countSql += whereClause;
+    sql += whereClause;
   }
+
+  const countResult = await query(countSql, [...values]);
+  const total = parseInt(countResult.rows[0]?.total || 0, 10);
 
   sql += ` ORDER BY created_at ASC`;
 
+  if (page !== undefined || limit !== undefined) {
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+    const offset = (pageNum - 1) * limitNum;
+    sql += ` LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+    values.push(limitNum, offset);
+  }
+
   const result = await query(sql, values);
-  return result.rows;
+  return {
+    works: result.rows,
+    total
+  };
 };
 
 const findWorkById = async (id) => {
