@@ -129,4 +129,4 @@ Implementación completa y validada de la edición de perfil de usuario y la pag
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de creación durante el commit de la iteración.
+- "959a4cec9daad637d7ac21867597eef1c11752b5"
