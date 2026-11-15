@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
+import WorksListView from '../views/WorksListView.vue';
 import LoginView from '../views/LoginView.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    alias: '/works',
+    name: 'works',
+    component: WorksListView
   },
   {
     path: '/login',
@@ -29,7 +30,7 @@ router.beforeEach((to, from, next) => {
 
   // Si ya tiene sesión e intenta entrar al login, redirigir al inicio
   if (to.name === 'login' && token) {
-    return next({ name: 'home' });
+    return next({ name: 'works' });
   }
 
   // Soporte preparado para rutas privadas con meta.requiresAuth
@@ -41,4 +42,3 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
-

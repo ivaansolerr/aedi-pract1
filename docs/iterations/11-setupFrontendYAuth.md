@@ -169,4 +169,4 @@ Implementación completa, compilada y validada de la base del frontend y del flu
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de commit
+- "118342e6e975ac11616fb032f78ab0adae8a4d39"
