@@ -11,6 +11,7 @@ import Tag from 'primevue/tag';
 import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
+import WorkDebatesSection from '../components/WorkDebatesSection.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -168,22 +169,8 @@ const confirmDelete = () => {
         </template>
       </Card>
 
-      <!-- Sección de debates (preparada para la Iteración 14) -->
-      <div class="debates-preview-section mt-4">
-        <Card>
-          <template #title>
-            <div class="debates-header">
-              <i class="pi pi-comments debates-icon"></i>
-              <h2>Debates sobre esta obra</h2>
-            </div>
-          </template>
-          <template #content>
-            <p class="debates-info">
-              Los debates temáticos y comentarios de la comunidad sobre esta obra se gestionarán en la <strong>Iteración 14</strong>.
-            </p>
-          </template>
-        </Card>
-      </div>
+      <!-- Sección interactiva de debates de la obra -->
+      <WorkDebatesSection :work-id="work.id" />
     </div>
   </div>
 </template>

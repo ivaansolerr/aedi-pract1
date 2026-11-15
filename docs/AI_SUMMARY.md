@@ -16,6 +16,10 @@
     - Implementación de búsqueda y filtros avanzados en obras y debates asociados en la ficha de obra (Iteración 08)
     - Implementación del ciclo CRUD completo para obras, debates y comentarios con control estricto de autoría (Iteración 09)
     - Implementación de edición de perfil propio de usuario y paginación con metadatos en listados de obras, debates y usuarios (Iteración 10)
+    - Inicialización del frontend con Vue 3, Pinia, PrimeVue y flujo completo de autenticación y sesión (Iteración 11)
+    - Implementación del catálogo de obras con búsqueda interactiva, filtrado combinado y paginación conectada al backend (Iteración 12)
+    - Implementación de la ficha de detalle y ciclo CRUD completo de obras con validaciones y confirmación modal (Iteración 13)
+    - Implementación de la gestión del recurso secundario: debates en la ficha de obra con control estricto de autoría y paginación (Iteración 14)
 
 # Partes modificadas manualmente
     - Nombres de los elementos de la base de datos

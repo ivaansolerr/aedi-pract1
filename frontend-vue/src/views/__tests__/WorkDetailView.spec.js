@@ -57,6 +57,9 @@ describe('WorkDetailView.vue', () => {
           'router-link': {
             props: ['to'],
             template: '<a :href="to"><slot></slot></a>'
+          },
+          WorkDebatesSection: {
+            template: '<div class="debates-stub">Debates</div>'
           }
         }
       }

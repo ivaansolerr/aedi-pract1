@@ -180,4 +180,4 @@ Implementación completa y validada de la ficha técnica de obras y del ciclo CR
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de commit local por el usuario
+- "93e6cc4595f52d29351dbb492ff55d890a15aced"
