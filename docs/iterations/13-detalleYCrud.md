@@ -158,7 +158,10 @@ Se usó la IA para:
 
 ### Prompts importantes
 
-- "te he creado el documento de la iteración 13 con el spec, revisalo y completalo"
+- "ya tienes el archivo de la iteración 13 creado, plantea el spec y el plan para la ficha de detalle y el CRUD completo de obras"
+- "el borrado de obras no puede ser accidental: integra el ConfirmDialog de PrimeVue para pedir confirmación modal destructiva antes de llamar a DELETE"
+- "en la ficha de detalle, los botones de editar y eliminar solo deben ser visibles si el usuario ha iniciado sesión, si la obra no existe muestra error 404"
+- "en los tests de WorkDetailView y WorkFormView da error No PrimeVue Toast/Confirm provided; añade ToastService y ConfirmationService en los plugins de test y un try/catch en el onMounted de WorkDetailView"
 - "perfecto, implementa"
 
 ### Resultado
@@ -167,14 +170,15 @@ Implementación completa y validada de la ficha técnica de obras y del ciclo CR
 
 ### Decisión del estudiante
 
-- Se acordó utilizar rutas dedicadas con URLs reales (`/works/new` y `/works/:id/edit`) protegidas con guardias de navegación para la creación y edición.
-- Se implementó la confirmación de borrado con `ConfirmDialog` de PrimeVue para mantener una estética unificada.
+- Se acordó utilizar rutas dedicadas con URLs reales (`/works/new` y `/works/:id/edit`) protegidas con guardias de navegación (`router.beforeEach`) para la creación y edición.
+- Se implementó la confirmación de borrado con `ConfirmDialog` de PrimeVue para evitar eliminaciones accidentales y mantener una estética unificada.
 - Se mantuvieron los controles de edición y borrado ocultos para usuarios no autenticados en la ficha de detalle.
+- Se optó por un único formulario polimórfico reactivo (`WorkFormView.vue`) capaz de operar en modo creación o edición según el parámetro `:id` de la ruta.
 
 ### Correcciones manuales
 
-- Inclusión de los plugins `ToastService` y `ConfirmationService` en los stubs de test de `WorkDetailView.spec.js` y `WorkFormView.spec.js`.
-- Captura de errores con try/catch en `onMounted` de `WorkDetailView.vue` para gestionar obras no encontradas sin dejar rechazos de promesa no controlados.
+- Inclusión de los plugins `ToastService` y `ConfirmationService` en los plugins globales de test de `WorkDetailView.spec.js` y `WorkFormView.spec.js`.
+- Captura de errores con bloque `try/catch` en `onMounted` de `WorkDetailView.vue` para gestionar obras no encontradas (404) sin dejar rechazos de promesa no controlados.
 
 ---
 

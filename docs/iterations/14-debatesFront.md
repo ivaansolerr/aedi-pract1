@@ -152,7 +152,10 @@ Se usó la IA para:
 
 ### Prompts importantes
 
-- "te he creado el documento de la iteración 14 con el spec, revisalo y completalo"
+- "te he creado el documento de la iteración 14 con el spec"
+- "no mezcles los debates con el código principal de la obra: encapsula la lista y el formulario de debates en un componente independiente WorkDebatesSection dentro de la ficha"
+- "si el usuario no está logueado, muestra un banner que le invite a iniciar sesión para participar en el debate en vez de mostrarle el formulario"
+- "en los tests de componentes aísla WorkDebatesSection con un stub en la vista de detalle y añade el mock de debateService.getDebatesByWork en su propia suite para evitar llamadas reales"
 - "perfecto, implementalo"
 
 ### Resultado
@@ -161,14 +164,15 @@ Implementación completa y validada de la gestión del recurso secundario (debat
 
 ### Decisión del estudiante
 
-- Se acordó encapsular toda la lógica y visualización de los debates en el componente `WorkDebatesSection.vue` y el store `useDebatesStore` para mantener limpio el componente de detalle de la obra.
-- Se implementó la restricción de autoría en la interfaz ocultando el botón de eliminación a cualquier usuario que no sea el creador del debate.
+- Se acordó encapsular toda la lógica y visualización de los debates en el componente `WorkDebatesSection.vue` y el store `useDebatesStore` para mantener limpio y desacoplado el componente de detalle de la obra.
+- Se implementó la restricción estricta de autoría en la interfaz ocultando el botón de eliminación a cualquier visitante o usuario que no sea el creador del debate (`authStore.user?.id === debate.user_id`).
+- Se definió un flujo condicional de interacción: los usuarios autenticados disponen del formulario de publicación directa, mientras que a los visitantes no autenticados se les muestra un aviso informativo para iniciar sesión.
 - Se reutilizó el servicio global `ConfirmDialog` de PrimeVue para confirmar la eliminación de debates.
 
 ### Correcciones manuales
 
 - Inclusión del stub de `WorkDebatesSection` en las pruebas de `WorkDetailView.spec.js` para desacoplar el test de ficha de obra de la sección de debates.
-- Mock de `debateService.getDebatesByWork` en `WorkDebatesSection.spec.js` para evitar peticiones reales de red durante el ciclo de vida `onMounted` en jsdom.
+- Mock explícito de `debateService.getDebatesByWork` en `WorkDebatesSection.spec.js` para evitar peticiones reales de red durante el ciclo de vida `onMounted` en entorno jsdom.
 
 ---
 

@@ -25,9 +25,16 @@
 # Partes modificadas manualmente
     - Nombres de los elementos de la base de datos
     - Nombres de las rutas de la API
-    - Eliminación de atributos inncesarios en algunas tablas
+    - Eliminación de atributos innecesarios en algunas tablas
+    - Configuración de plugins de PrimeVue (ToastService, ConfirmationService) y stubs en el harness de pruebas jsdom con Vitest
+    - Inclusión de mocks específicos (workService.getWorks, debateService.getDebatesByWork) para interceptar peticiones de red asíncronas en onMounted
+    - Adición de bloque try/catch en onMounted de WorkDetailView para evitar errores de promesa no controlados en respuestas 404
+    - Inicialización y siembra automática de usuario de prueba y catálogo demo en server.js
 
 # Problemas encontrados con la IA
+    - La IA generaba pruebas de componentes montando vistas que requerían servicios de Toast y confirmación sin registrar los plugins de PrimeVue correspondientes en el wrapper de test.
+    - Errores de "Unhandled Rejection" en Vitest al ejecutarse el ciclo de vida onMounted contra una API no mockeada en entorno jsdom.
+    - La IA omitía la siembra automática de datos demo en el backend, provocando que la base de datos en memoria arrancara vacía e impidiera el inicio de sesión inicial.
 
 # Valoración personal
-
+    - La IA agiliza significativamente la escritura de componentes y la estructura inicial de las iteraciones, pero requiere una dirección técnica rigurosa: definir con precisión la arquitectura desacoplada, forzar validaciones de dominio y autoría, y corregir manualmente los entornos de prueba unitaria.

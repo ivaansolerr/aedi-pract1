@@ -140,7 +140,10 @@ Se usó la IA para:
 
 ### Prompts importantes
 
-- "te he creado el documento de la iteración 12 con el spec, revisalo y completalo"
+- "te he creado el documento de la iteración 12 con el spec para el catálogo de obras y la búsqueda"
+- "la búsqueda y el filtrado por tipo, género y año deben hacerse contra el backend y no solo en la página descargada; conecta el Paginator de PrimeVue a los metadatos de paginación del servidor"
+- "centraliza el estado de los filtros y la paginación en el store useWorksStore para que no se pierdan al navegar y haz que el catálogo esté disponible de forma pública sin requerir login"
+- "en WorksListView.spec.js salta un error de rechazo de promesa no controlado por onMounted; agrega el mock de workService.getWorks en el beforeEach antes de montar el componente"
 - "perfecto, continua con la implementación"
 
 ### Resultado
@@ -149,13 +152,15 @@ Implementación completa y verificada del catálogo de obras con búsqueda inter
 
 ### Decisión del estudiante
 
-- Se acordó centralizar el estado de los filtros en `useWorksStore` para que la búsqueda y paginación persistan coherentemente.
+- Se exigió que la paginación y búsqueda fuesen obligatoriamente *server-side* mediante query params (`page`, `limit`, `search`, etc.), rechazando cualquier filtrado exclusivamente en cliente.
+- Se acordó centralizar el estado de los filtros y la paginación en `useWorksStore` para que la búsqueda y paginación persistan coherentemente entre navegaciones.
 - Se conectó el `Paginator` nativo de PrimeVue directamente con las variables de paginación del backend (`total`, `limit`, `page`).
 - Se definió que la página principal (`/` y `/works`) exponga de forma inmediata el catálogo de obras con acceso directo para visitantes y miembros.
 
 ### Correcciones manuales
 
 - Incorporación del mock de `workService.getWorks` en `WorksListView.spec.js` para evitar llamadas reales no controladas de red durante el ciclo de vida `onMounted` en entorno jsdom.
+- Ajuste en los selectores de filtro para limpiar parámetros vacíos antes de enviar la petición a la API.
 
 ---
 

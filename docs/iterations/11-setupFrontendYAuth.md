@@ -148,7 +148,9 @@ Se usó la IA para:
 
 ### Prompts importantes
 
-- "te he creado el documento de la iteración 11 con el spec, revisalo y completalo"
+- "vamos a empezar con el frontend de la práctica 4; estructúralo en 4 iteraciones (11 a 14) para separar auth, catálogo/paginación, CRUD de obras y recurso secundario (debates)"
+- "te he creado el documento de la iteración 11 con el spec; para la interfaz usaremos PrimeVue 4 con tema Aura y PrimeIcons, y la sesión se gestionará con Pinia guardando el token y usuario en localStorage"
+- "revisa el spec y plantea el plan de implementación y el plan de pruebas unitarias y de componentes"
 - "comienza con la implementación"
 
 ### Resultado
@@ -157,13 +159,15 @@ Implementación completa, compilada y validada de la base del frontend y del flu
 
 ### Decisión del estudiante
 
-- Se acordó utilizar PrimeVue 4 con tema Aura y PrimeIcons para mantener una interfaz accesible, estética y coherente en toda la aplicación.
-- Se fijó la persistencia de sesión en `localStorage` mediante las claves `auth_token` y `auth_user`.
-- Se acordó dividir la Práctica 4 en 4 iteraciones temáticas (11 a 14) para abordar de forma ordenada la autenticación, el catálogo/búsqueda/paginación, el CRUD de obras y la gestión de debates.
+- Se decidió estructurar el desarrollo del frontend de la práctica en 4 iteraciones temáticas (11 a 14) para abordar de forma ordenada la autenticación, el catálogo/búsqueda/paginación, el CRUD de obras y la gestión de debates.
+- Se eligió PrimeVue 4 con tema Aura y PrimeIcons para mantener una interfaz accesible, estética y coherente en toda la aplicación.
+- Se estableció la persistencia de sesión en `localStorage` mediante las claves `auth_token` y `auth_user`.
+- Se optó por una barra de navegación reactiva (`AppNavbar.vue`) que cambia dinámicamente según el estado de autenticación del usuario.
 
 ### Correcciones manuales
 
-- Configuración de stubs en las pruebas de componentes `@vue/test-utils` para simular adecuadamente los componentes de PrimeVue en entorno jsdom.
+- Inclusión de stubs y configuración de plugins de PrimeVue en el entorno de pruebas de Vitest (`@vue/test-utils`) para simular adecuadamente los componentes en entorno jsdom.
+- Ajuste de los mensajes de error en el formulario de login para asegurar que los fallos 401 de credenciales se muestren de forma clara en la interfaz.
 
 ---
 
