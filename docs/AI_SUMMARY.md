@@ -20,6 +20,7 @@
     - Implementación del catálogo de obras con búsqueda interactiva, filtrado combinado y paginación conectada al backend (Iteración 12)
     - Implementación de la ficha de detalle y ciclo CRUD completo de obras con validaciones y confirmación modal (Iteración 13)
     - Implementación de la gestión del recurso secundario: debates en la ficha de obra con control estricto de autoría y paginación (Iteración 14)
+    - Documentación completa de la arquitectura frontend en ARCHITECTURE.md y guía de pruebas End-to-End en E2E_TEST_RUN.md
 
 # Partes modificadas manualmente
     - Nombres de los elementos de la base de datos

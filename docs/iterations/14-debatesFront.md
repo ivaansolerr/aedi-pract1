@@ -152,7 +152,6 @@ Se usó la IA para:
 
 ### Prompts importantes
 
-- "te he creado el documento de la itearción 14"
 - "te he creado el documento de la iteración 14 con el spec, revisalo y completalo"
 - "perfecto, implementalo"
 
@@ -175,4 +174,4 @@ Implementación completa y validada de la gestión del recurso secundario (debat
 
 ## COMMITS RELACIONADOS
 
-- Pendiente de commit local por el usuario
+- "4bc1fc8b41ff5891f1c176a2e8cae7c38d362816"
