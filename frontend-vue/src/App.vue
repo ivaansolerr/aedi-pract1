@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useAuthStore } from './stores/auth';
 import AppNavbar from './components/AppNavbar.vue';
 import Toast from 'primevue/toast';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const authStore = useAuthStore();
 
@@ -15,6 +16,7 @@ onMounted(() => {
 <template>
   <div class="app-layout">
     <Toast position="top-right" />
+    <ConfirmDialog />
     <AppNavbar />
     <main class="main-content">
       <router-view />
@@ -47,4 +49,3 @@ body {
   flex: 1;
 }
 </style>
-

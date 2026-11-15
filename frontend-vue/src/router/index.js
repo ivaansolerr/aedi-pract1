@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import WorksListView from '../views/WorksListView.vue';
+import WorkDetailView from '../views/WorkDetailView.vue';
+import WorkFormView from '../views/WorkFormView.vue';
 import LoginView from '../views/LoginView.vue';
 
 const routes = [
@@ -8,6 +10,23 @@ const routes = [
     alias: '/works',
     name: 'works',
     component: WorksListView
+  },
+  {
+    path: '/works/new',
+    name: 'work-create',
+    component: WorkFormView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/works/:id',
+    name: 'work-detail',
+    component: WorkDetailView
+  },
+  {
+    path: '/works/:id/edit',
+    name: 'work-edit',
+    component: WorkFormView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/login',
@@ -28,12 +47,12 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('auth_token');
 
-  // Si ya tiene sesión e intenta entrar al login, redirigir al inicio
+  // Si ya tiene sesión e intenta entrar al login, redirigir al catálogo
   if (to.name === 'login' && token) {
     return next({ name: 'works' });
   }
 
-  // Soporte preparado para rutas privadas con meta.requiresAuth
+  // Rutas privadas con meta.requiresAuth requieren token
   if (to.meta.requiresAuth && !token) {
     return next({ name: 'login' });
   }

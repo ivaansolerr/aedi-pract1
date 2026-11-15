@@ -12,9 +12,11 @@ describe('useWorksStore', () => {
   it('inicializa con valores por defecto y lista vacía', () => {
     const store = useWorksStore();
     expect(store.works).toEqual([]);
+    expect(store.currentWork).toBeNull();
     expect(store.pagination).toEqual({ total: 0, page: 1, limit: 6, totalPages: 1 });
     expect(store.filters).toEqual({ title: '', type: '', genre: '', release_year: '' });
     expect(store.isLoading).toBe(false);
+    expect(store.isLoadingDetail).toBe(false);
     expect(store.errorMessage).toBeNull();
   });
 
@@ -36,6 +38,57 @@ describe('useWorksStore', () => {
     expect(store.pagination.total).toBe(2);
     expect(store.isLoading).toBe(false);
     expect(store.errorMessage).toBeNull();
+  });
+
+  it('fetchWorkById obtiene los detalles y actualiza currentWork', async () => {
+    const mockWork = { id: 'w1', title: 'Blade Runner', type: 'movie' };
+    vi.spyOn(workService, 'getWorkById').mockResolvedValue({ work: mockWork });
+
+    const store = useWorksStore();
+    const result = await store.fetchWorkById('w1');
+
+    expect(result).toEqual(mockWork);
+    expect(store.currentWork).toEqual(mockWork);
+    expect(store.isLoadingDetail).toBe(false);
+  });
+
+  it('createWork registra una nueva obra mediante el servicio', async () => {
+    const payload = { title: 'Tenet', type: 'movie' };
+    const mockCreated = { id: 'w-new', ...payload };
+    vi.spyOn(workService, 'createWork').mockResolvedValue({ work: mockCreated });
+
+    const store = useWorksStore();
+    const result = await store.createWork(payload);
+
+    expect(result).toEqual(mockCreated);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it('updateWork modifica los datos y actualiza currentWork', async () => {
+    const payload = { title: 'Tenet (Director Cut)' };
+    const mockUpdated = { id: 'w-new', title: 'Tenet (Director Cut)' };
+    vi.spyOn(workService, 'updateWork').mockResolvedValue({ work: mockUpdated });
+
+    const store = useWorksStore();
+    store.currentWork = { id: 'w-new', title: 'Tenet' };
+
+    const result = await store.updateWork('w-new', payload);
+
+    expect(result).toEqual(mockUpdated);
+    expect(store.currentWork.title).toBe('Tenet (Director Cut)');
+  });
+
+  it('deleteWork elimina la obra de la lista y limpia currentWork', async () => {
+    vi.spyOn(workService, 'deleteWork').mockResolvedValue({ message: 'Obra eliminada' });
+
+    const store = useWorksStore();
+    store.works = [{ id: 'w-del', title: 'Por eliminar' }];
+    store.currentWork = { id: 'w-del', title: 'Por eliminar' };
+
+    await store.deleteWork('w-del');
+
+    expect(store.works).toHaveLength(0);
+    expect(store.currentWork).toBeNull();
   });
 
   it('setPage actualiza la página y consulta el servicio', async () => {
@@ -108,4 +161,3 @@ describe('useWorksStore', () => {
     expect(store.isLoading).toBe(false);
   });
 });
-

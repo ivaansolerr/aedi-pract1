@@ -19,6 +19,10 @@ describe('WorksListView.vue', () => {
     return mount(WorksListView, {
       global: {
         stubs: {
+          'router-link': {
+            props: ['to'],
+            template: '<a :href="to"><slot></slot></a>'
+          },
           WorksFilterBar: {
             template: '<div class="filter-bar-stub"></div>'
           },

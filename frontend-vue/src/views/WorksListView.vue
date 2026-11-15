@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useWorksStore } from '../stores/works';
+import { useAuthStore } from '../stores/auth';
 import WorksFilterBar from '../components/WorksFilterBar.vue';
 import WorkCard from '../components/WorkCard.vue';
 import Paginator from 'primevue/paginator';
@@ -9,6 +10,7 @@ import Message from 'primevue/message';
 import Button from 'primevue/button';
 
 const worksStore = useWorksStore();
+const authStore = useAuthStore();
 
 onMounted(() => {
   // Carga inicial solo si no se han cargado obras previamente
@@ -33,9 +35,20 @@ const handlePageChange = (event) => {
           Explora películas, series y libros, y participa en los debates de la comunidad.
         </p>
       </div>
-      <div v-if="!worksStore.isLoading && worksStore.pagination.total > 0" class="results-badge">
-        <i class="pi pi-check-circle"></i>
-        <span>{{ worksStore.pagination.total }} obras encontradas</span>
+
+      <div class="header-right">
+        <div v-if="!worksStore.isLoading && worksStore.pagination.total > 0" class="results-badge">
+          <i class="pi pi-check-circle"></i>
+          <span>{{ worksStore.pagination.total }} obras encontradas</span>
+        </div>
+
+        <router-link v-if="authStore.isAuthenticated" to="/works/new">
+          <Button
+            label="Crear Obra"
+            icon="pi pi-plus"
+            severity="primary"
+          />
+        </router-link>
       </div>
     </div>
 
@@ -120,6 +133,12 @@ const handlePageChange = (event) => {
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .page-title {
@@ -215,4 +234,3 @@ const handlePageChange = (event) => {
   margin-bottom: 1rem;
 }
 </style>
-
