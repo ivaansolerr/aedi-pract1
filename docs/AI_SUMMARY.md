@@ -20,6 +20,7 @@
     - Implementación del catálogo de obras con búsqueda interactiva, filtrado combinado y paginación conectada al backend (Iteración 12)
     - Implementación de la ficha de detalle y ciclo CRUD completo de obras con validaciones y confirmación modal (Iteración 13)
     - Implementación de la gestión del recurso secundario: debates en la ficha de obra con control estricto de autoría y paginación (Iteración 14)
+    - Inicialización del frontend móvil con Ionic para Vue, Pinia, Axios, navegación con guardias de ruta y flujo de autenticación adaptado a dispositivos táctiles (Iteración 15)
     - Documentación completa de la arquitectura frontend en ARCHITECTURE.md y guía de pruebas End-to-End en E2E_TEST_RUN.md
 
 # Partes modificadas manualmente
@@ -30,11 +31,14 @@
     - Inclusión de mocks específicos (workService.getWorks, debateService.getDebatesByWork) para interceptar peticiones de red asíncronas en onMounted
     - Adición de bloque try/catch en onMounted de WorkDetailView para evitar errores de promesa no controlados en respuestas 404
     - Inicialización y siembra automática de usuario de prueba y catálogo demo en server.js
+    - Configuración de stubs y mocks de toastController de Ionic en el harness de Vitest para simular alertas móviles en entorno jsdom (Iteración 15)
+    - Inclusión de flushPromises() en las pruebas de componentes móviles para resolver ciclos asíncronos tras eventos de formulario (Iteración 15)
 
 # Problemas encontrados con la IA
     - La IA generaba pruebas de componentes montando vistas que requerían servicios de Toast y confirmación sin registrar los plugins de PrimeVue correspondientes en el wrapper de test.
     - Errores de "Unhandled Rejection" en Vitest al ejecutarse el ciclo de vida onMounted contra una API no mockeada en entorno jsdom.
     - La IA omitía la siembra automática de datos demo en el backend, provocando que la base de datos en memoria arrancara vacía e impidiera el inicio de sesión inicial.
+    - Asincronía no resuelta en pruebas de componentes con Ionic al disparar eventos de formulario sin esperar la resolución de microtareas con flushPromises().
 
 # Valoración personal
     - La IA agiliza significativamente la escritura de componentes y la estructura inicial de las iteraciones, pero requiere una dirección técnica rigurosa: definir con precisión la arquitectura desacoplada, forzar validaciones de dominio y autoría, y corregir manualmente los entornos de prueba unitaria.
